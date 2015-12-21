@@ -1,0 +1,38 @@
+name: IntristicCORE
+main: uk.intristicmc.core.IntristicCORE
+author: Axanite, IntristicMC
+version: 1.0
+
+commands:
+  ban:
+    description: Removes a player from the server permanently.
+  chatmode:
+    description: Switches chat modes between Restricted & Open.
+  fly:
+    description: Allows players to fly.
+  kick:
+    description: Kicks a player from the server.
+  maintenance:
+    description: Toggles maintenance mode on/off.
+  msg:
+    description: Allows for messaging between users.
+  mute:
+    description: Removes a player's ability to type in chat permanently.
+  nick:
+    description: Allows for player to set a custom nickname.
+  ping:
+    description: Returns & Shows the ping of a player.
+  reply:
+    description: Replies to last message sent to player.
+  report:
+    description: Notifies all staff in regards to a player breaking the rules.
+  seen:
+    description: Shows the time that a player was last seen on the server.
+  staff:
+    description: Allows for communication between staff privately.
+  tempban:
+    description: Removes a player from the server temporarily.
+  unban:
+    description: Pardons the ban on a user.
+  unmute:
+    description: Pardons the mute on a user.
