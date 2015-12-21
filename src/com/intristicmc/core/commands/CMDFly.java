@@ -1,4 +1,4 @@
-package uk.intristicmc.core.commands;
+package com.intristicmc.core.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

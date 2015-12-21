@@ -1,12 +1,12 @@
-package uk.intristicmc.core.commands;
+package com.intristicmc.core.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class CMDReply implements CommandExecutor {
+public class CMDMsg implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if(cmd.getName().equalsIgnoreCase("reply")) {
+		if(cmd.getName().equalsIgnoreCase("msg")) {
 			
 		}
 		return true;

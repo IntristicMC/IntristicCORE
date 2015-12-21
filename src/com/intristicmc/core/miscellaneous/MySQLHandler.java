@@ -1,4 +1,4 @@
-package uk.intristicmc.core.miscellaneous;
+package com.intristicmc.core.miscellaneous;
 
 import java.sql.DriverManager;
 

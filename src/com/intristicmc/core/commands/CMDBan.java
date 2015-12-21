@@ -1,10 +1,10 @@
-package uk.intristicmc.core.commands;
+package com.intristicmc.core.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import uk.intristicmc.core.miscellaneous.Utils;
+import com.intristicmc.core.miscellaneous.Utils;
 
 public class CMDBan implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -13,7 +13,6 @@ public class CMDBan implements CommandExecutor {
 				sender.sendMessage(Utils.getNoPermissionMessage("intristicmc.core.ban"));
 				return true;
 			}
-			
 		}
 		return true;
 	}

@@ -1,8 +1,8 @@
-package uk.intristicmc.core;
+package com.intristicmc.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import uk.intristicmc.core.commands.CMDChatmode;
+import com.intristicmc.core.commands.CMDChatmode;
 
 public class IntristicCORE extends JavaPlugin {
 	public void onEnable() {
