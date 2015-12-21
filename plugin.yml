@@ -1,5 +1,5 @@
 name: IntristicCORE
-main: uk.intristicmc.core.IntristicCORE
+main: com.intristicmc.core.IntristicCORE
 author: Axanite, IntristicMC
 version: 1.0
 
