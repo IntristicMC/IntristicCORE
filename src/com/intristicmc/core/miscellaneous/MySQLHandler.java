@@ -1,7 +1,7 @@
 package com.intristicmc.core.miscellaneous;
 
 import java.sql.DriverManager;
-
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.Statement;
 
@@ -24,5 +24,21 @@ public class MySQLHandler {
 	 
 	 public static Statement returnStatement() {
 		 return s;
+	 }
+	 
+	 public static void closeConnection() {
+		 try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	 }
+	 
+	 public static void closeStatement() {
+		 try {
+			 s.close();
+		 } catch(SQLException e) {
+			 e.printStackTrace();
+		 }
 	 }
 }
