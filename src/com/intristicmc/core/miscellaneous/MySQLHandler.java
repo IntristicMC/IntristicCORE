@@ -22,10 +22,6 @@ public class MySQLHandler {
 	  }
 	 }
 	 
-	 public static Statement returnStatement() {
-		 return s;
-	 }
-	 
 	 public static void closeConnection() {
 		 try {
 			conn.close();
@@ -41,4 +37,8 @@ public class MySQLHandler {
 			 e.printStackTrace();
 		 }
 	 }
+
+	public static Statement returnStatement() {
+		return s;
+	}
 }

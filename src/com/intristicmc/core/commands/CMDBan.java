@@ -3,6 +3,7 @@ package com.intristicmc.core.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -16,7 +17,7 @@ import com.intristicmc.core.miscellaneous.MySQLHandler;
 import com.intristicmc.core.miscellaneous.Utils;
 
 public class CMDBan implements CommandExecutor {
-	@SuppressWarnings({"deprecation" })
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("ban")) {
 			if(!sender.hasPermission("intristicmc.core.ban")) {
@@ -39,7 +40,7 @@ public class CMDBan implements CommandExecutor {
 						reasonSb.append(args[i] + " ");
 					}
 				}
-				reason = reasonSb.toString();
+				reason = StringEscapeUtils.escapeJava(reasonSb.toString());
 			}
 			
 			// Get the player and assign it to the correct variable.
@@ -53,25 +54,26 @@ public class CMDBan implements CommandExecutor {
 			
 			// Kick and ban the player.
 			if(targetOffline != null && targetOnline == null) {
-				MySQLHandler.connect();
 				try {
 					String checkSql = "SELECT * FROM bans WHERE uuid = '" + targetOffline.getUniqueId() + "'";
 					ResultSet rs = MySQLHandler.returnStatement().executeQuery(checkSql);
-					if(rs.next()) {
+					if(rs.next() && rs.getInt("is_pardoned") == 0) {
 						MessageManager.sendSenderMessage(sender, "&c" + targetOffline.getName() + " is already banned!");
 						return true;
-					} else {
-						String sql = "INSERT INTO bans (username, uuid, time, reason) VALUES ('" + targetOffline.getName() + "', '" + targetOffline.getUniqueId() + "', 0, '" + reason + "')";
+					} else if(rs.next() && rs.getInt("is_pardoned") == 1) {
+						String sql = "INSERT INTO bans (username, uuid, reason, is_pardoned) VALUES ('" + targetOffline.getName() + "', '" + targetOffline.getUniqueId() + "', '" + reason + "', 0)";
 						MySQLHandler.returnStatement().executeUpdate(sql);
 						Utils.broadcastToStaff("&a" + sender.getName() + " banned " + targetOffline.getName() + " for \"" + reason + "\"");
 						return true;
-					} 
+					} else if(!rs.next()){
+						String sql = "INSERT INTO bans (username, uuid, reason, is_pardoned) VALUES ('" + targetOffline.getName() + "', '" + targetOffline.getUniqueId() + "', '" + reason + "', 0)";
+						MySQLHandler.returnStatement().executeUpdate(sql);
+						Utils.broadcastToStaff("&a" + sender.getName() + " banned " + targetOffline.getName() + " for \"" + reason + "\"");
+						return true;
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 					return true;
-				} finally {
-					MySQLHandler.closeStatement();
-					MySQLHandler.closeConnection();
 				}
 			} else if(targetOnline != null && targetOffline == null) {
 				MySQLHandler.connect();
@@ -82,7 +84,7 @@ public class CMDBan implements CommandExecutor {
 						MessageManager.sendSenderMessage(sender, "&c" + targetOnline.getName() + " is already banned!");
 						return true;
 					} else {
-						String sql = "INSERT INTO bans (username, uuid, reason) VALUES ('" + targetOnline.getName() + "', '" + targetOnline.getUniqueId() + "', 0, '" + reason + "')";
+						String sql = "INSERT INTO bans (username, uuid, reason, is_pardoned) VALUES ('" + targetOnline.getName() + "', '" + targetOnline.getUniqueId() + "', '" + reason + "', 0)";
 						MySQLHandler.returnStatement().executeUpdate(sql);
 						targetOnline.kickPlayer(ChatColor.RED + "You have been banned for:\n\"" + reason + "\"");
 						Utils.broadcastToStaff("&a" + sender.getName() + " banned " + targetOnline.getName() + " for \"" + reason + "\"");
@@ -91,9 +93,6 @@ public class CMDBan implements CommandExecutor {
 				} catch (SQLException e) {
 					e.printStackTrace();
 					return true;
-				} finally {
-					MySQLHandler.closeStatement();
-					MySQLHandler.closeConnection();
 				}
 			}
 		}

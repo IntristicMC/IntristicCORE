@@ -1,5 +1,6 @@
 package com.intristicmc.core.commands;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +21,6 @@ public class CMDKick implements CommandExecutor {
 				return true;
 			}
 			
-			
 			// Get and set the reason.
 			String reason = "";
 			if(args.length == 0) {
@@ -37,7 +37,7 @@ public class CMDKick implements CommandExecutor {
 						sb.append(args[i] + " ");
 					}
 				}
-				reason = sb.toString();
+				reason = StringEscapeUtils.escapeJava(sb.toString());
 			}
 			
 			Player target = Bukkit.getPlayer(args[0]);

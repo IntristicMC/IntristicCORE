@@ -32,6 +32,8 @@ commands:
     description: Allows for communication between staff privately.
   tempban:
     description: Removes a player from the server temporarily.
+  tempmute:
+    description: Stops a player from talking temporarily.
   unban:
     description: Pardons the ban on a user.
   unmute:

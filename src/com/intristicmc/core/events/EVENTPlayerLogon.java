@@ -4,48 +4,67 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 import com.intristicmc.core.miscellaneous.MySQLHandler;
+import com.intristicmc.core.miscellaneous.temputils.DateUtil;
 
 public class EVENTPlayerLogon implements Listener {
-
+	
 	@EventHandler
-	public void onPlayerLogin(PlayerLoginEvent e) {
+	public void onPlayerLogon(PlayerLoginEvent e) {
+		Player p = e.getPlayer();
+		
 		MySQLHandler.connect();
+		
+		String permBanSql = "SELECT * FROM bans WHERE uuid = '" + p.getUniqueId() + "'";
+		String tempBanSql = "SELECT * FROM tempbans WHERE uuid = '" + p.getUniqueId() + "'";
 		try {
-			String sql = "SELECT * FROM bans WHERE uuid = '" + e.getPlayer().getUniqueId() + "'";
-			ResultSet rs = MySQLHandler.returnStatement().executeQuery(sql);
-			if(rs.next()) {
-				String reason = rs.getString("reason");
-				if(rs.getLong("time") != 0) {
-					long time = rs.getLong("time");
-					long current = System.currentTimeMillis();
-					long endOfBan = time + current;
-					if(endOfBan > current) {
-						MySQLHandler.returnStatement().executeUpdate("DELETE FROM bans WHERE id = " + rs.getInt("id"));
+			ResultSet permBanSet = MySQLHandler.returnStatement().executeQuery(permBanSql);
+			
+			if(permBanSet.next()) {
+				String reason = permBanSet.getString("reason");
+				int is_pardoned = permBanSet.getInt("is_pardoned");
+				if(is_pardoned == 1) {
+					e.allow();
+					permBanSet.close();
+					return;
+				} else {
+					e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You were banned for:\n\"" + reason + "\"");
+					permBanSet.close();
+					return;
+				}
+			}
+			ResultSet tempBanSet = MySQLHandler.returnStatement().executeQuery(tempBanSql);
+			if(tempBanSet.next()) {
+				String reason = tempBanSet.getString("reason");
+				long endOfBanMillis = tempBanSet.getLong("endOfBan");
+				String endOfBan = DateUtil.formatDateDiff(endOfBanMillis);
+				int is_pardoned = tempBanSet.getInt("is_pardoned");
+				if(is_pardoned == 1) {
+					e.allow();
+					tempBanSet.close();
+					return;
+				} else {
+					if(System.currentTimeMillis() > endOfBanMillis) {
+						e.allow();
+						tempBanSet.close();
 						return;
-					} else {
-						String seconds = String.valueOf(time * 1000);
-						String minutes = String.valueOf(Long.parseLong(seconds) * 60);
-						String hours = String.valueOf(Long.parseLong(minutes) * 60);
-						String days = String.valueOf(Long.parseLong(hours) * 24);
-						String date = days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds"; 
-						e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You have been banned for:\n\"" + reason + "\"!\nYou have " + date + " left!");
+					} else if(System.currentTimeMillis() < endOfBanMillis) {
+						e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You were banned for:\n\"" + reason + "\". \nYour ban will be lifted on: " + endOfBan);
+						tempBanSet.close();
 						return;
 					}
+					return;
 				}
-				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You have been banned for:\n\"" + reason + "\"!");
-			} else {
-				return;
 			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		} finally {
-			MySQLHandler.closeStatement();
-			MySQLHandler.closeConnection();
+			e.allow();
+			return;
+		} catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 	}
 }

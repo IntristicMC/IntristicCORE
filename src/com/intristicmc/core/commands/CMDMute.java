@@ -3,6 +3,7 @@ package com.intristicmc.core.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,8 +38,9 @@ public class CMDMute implements CommandExecutor {
 						sb.append(args[i] + " ");
 					}
 				}
-				reason = sb.toString();
+				reason = StringEscapeUtils.escapeJava(sb.toString());
 			}
+			
 			
 			// Get the player
 			Player target = Bukkit.getPlayer(args[0]);
@@ -46,22 +48,27 @@ public class CMDMute implements CommandExecutor {
 				MessageManager.sendSenderMessage(sender, "&c" + args[0] + " is not online or has never played on this server!");
 				return true;
 			}
-			MySQLHandler.connect();
+			
 			try {
 				ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM muted_players WHERE username = '" + target.getName() + "'");
-				if(rs.next()) {
+				if(rs.next() && rs.getInt("is_pardoned") == 0) {
 					MessageManager.sendSenderMessage(sender, "&c" + target.getName() + " is already muted!");
 					return true;
-				} else {
+				} else if(rs.next() && rs.getInt("is_pardoned") == 1) {
 					String sql = "INSERT INTO muted_players (`username`, `uuid`, `reason`) VALUES ('" + target.getName() + "', '" + target.getUniqueId() + "', '" + reason + "')";
 					MySQLHandler.returnStatement().executeUpdate(sql);
 					Utils.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
+					MessageManager.sendPlayerMessage(target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
+					return true;
+				} else if(!rs.next()) {
+					String sql = "INSERT INTO muted_players (`username`, `uuid`, `reason`) VALUES ('" + target.getName() + "', '" + target.getUniqueId() + "', '" + reason + "')";
+					MySQLHandler.returnStatement().executeUpdate(sql);
+					Utils.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
+					MessageManager.sendPlayerMessage(target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
+					return true;
 				}
 			} catch(SQLException e) {
 				e.printStackTrace();
-			} finally {
-				MySQLHandler.closeStatement();
-				MySQLHandler.closeConnection();
 			}
 		}
 		return true;
