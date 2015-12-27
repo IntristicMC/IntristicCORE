@@ -83,10 +83,12 @@ public class DateUtil {
 		return c.getTimeInMillis();
 	}
 	
-	public static long dateDiffFromNow(long milli) {
-		long pre = System.currentTimeMillis();
-		long diff = pre - milli;
-		return diff;
+	public static String getTempDiff(long setDate, long endDate) {
+		Calendar set = Calendar.getInstance();
+		set.setTimeInMillis(setDate);
+		Calendar end = Calendar.getInstance();
+		end.setTimeInMillis(endDate);
+		return formatDateDiff(set, end);
 	}
 
 	public static String getDate(boolean exactTime, String... timeZone) {

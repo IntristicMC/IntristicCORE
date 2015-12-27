@@ -11,9 +11,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import com.evilmidget38.UUIDFetcher;
 import com.intristicmc.core.miscellaneous.MessageManager;
 import com.intristicmc.core.miscellaneous.MySQLHandler;
+import com.intristicmc.core.miscellaneous.NameFetcher;
+import com.intristicmc.core.miscellaneous.UUIDFetcher;
 import com.intristicmc.core.miscellaneous.Utils;
 import com.intristicmc.core.miscellaneous.temputils.DateUtil;
 import com.intristicmc.core.miscellaneous.temputils.NumberUtil;
@@ -24,18 +25,18 @@ public class CMDTempBan implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
     	if(cmd.getName().equalsIgnoreCase("tempban")) {
     		if(!sender.hasPermission("intristicmc.core.tempban")) {
-    			Utils.sendNoPermissionMessage(sender, null, "intristicmc.core.tempban");
+    			Utils.sendNoPermissionMessage(sender, null);
     		}
     		
     		if(args.length < 2) {
-    			MessageManager.sendSenderMessage(sender, "&8Incorrect usage for this command! &cUsage: /" + label + " <player> <#y|month|d|h|minute|s> [reason]");
+    			MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <player> <#y|month|d|h|minute|s> [reason]");
     			return true;
     		}
     		
 	        long timeStamp = 0L;
 	        try {
 	            if (!StringUtil.matches(args[1], "\\d{1,}(d|days|day|m|minute|minutes|min|hour|hours|h|month|months|year|years|y|s|seconds|second)")) {
-	                MessageManager.sendSenderMessage(sender, "§cInvalid time period.");
+	                MessageManager.sendSenderMessage(true, sender, "§cInvalid time period.");
 	                return true;
 	            }
 	            timeStamp = DateUtil.parseDateDiff(args[1], true);
@@ -43,15 +44,11 @@ public class CMDTempBan implements CommandExecutor {
 	        }
 	 
 	        String uuid = null;
+	        String name = null;
 	        if (Bukkit.getPlayer(args[0]) == null) {
 	        	try {
 	        		uuid = UUIDFetcher.getUUIDOf(args[0]).toString().toLowerCase();
-	        	} catch(Exception e) {
-	        		e.printStackTrace();
-	        	}
-	        } else {
-	        	try {
-	        		uuid = UUIDFetcher.getUUIDOf(args[0]).toString().toLowerCase();
+	        		name = NameFetcher.getNameFrom(uuid);
 	        	} catch(Exception e) {
 	        		e.printStackTrace();
 	        	}
@@ -70,26 +67,30 @@ public class CMDTempBan implements CommandExecutor {
 	        	reasonSB.append("You were tempbanned by a staff member!");
 	        }
 	        String reason = StringEscapeUtils.escapeJava(reasonSB.toString());
-	        
-	        Utils.broadcastToStaff("§c" + sender.getName() + "§8 temporarily banned §c" + args[0] + " §8for §c" + this.format(args[1]) + " §8for §c" + reason.trim() + "§c.");
-	 
+	        	 
 	        ResultSet exists = null;
+	        String endOfBan = DateUtil.formatDateDiff(timeStamp);
 	        try {
 	        	exists = MySQLHandler.returnStatement().executeQuery("SELECT * FROM tempbans WHERE uuid = '" + uuid + "'");
-		        if(exists.next() && exists.getInt("is_pardoned") == 0) {
-		        	MessageManager.sendSenderMessage(sender, "&c" + args[0] + " is already banned!");
-		        } else if(exists.next() && exists.getInt("is_pardoned") == 1) {
-		        	String sql = "INSERT INTO tempbans(username, uuid, endOfBan, reason) VALUES ('" + args[0] + "', '" + uuid + "', " + timeStamp + ", '" + reason + "')";
+	        	boolean alreadyBanned = false;
+		        while(exists.next()) {
+		        	if(exists.getInt("is_pardoned") == 0) {
+		        		alreadyBanned = true;
+		        		MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " is already banned!");
+		        	}
+		        }
+		        if(!alreadyBanned) {
+		        	String sql = "INSERT INTO tempbans(dateOfBan, username, uuid, endOfBan, punisher, reason) VALUES ('" + System.currentTimeMillis() + "', '" + name + "', '" + uuid + "', " + timeStamp + ", '" + sender.getName() + "', '" + reason + "')";
 		        	MySQLHandler.returnStatement().executeUpdate(sql);
 		        	if(Bukkit.getPlayer(args[0]) != null) {
-		        		Bukkit.getPlayer(args[0]).kickPlayer(ChatColor.RED + "You were banned by a staff member for: " + DateUtil.formatDateDiff(timeStamp) + " for:\n\"" + reason.trim() + "\"");
+		        		String kickMessage = (
+		        				"&7You were &4banned &7from IntristicMC. \n" +
+		        				"&7Ban Expiry: &c" + endOfBan + "\n" +
+		        				"&7Reason: &c" + reason
+		        				);
+		        		Bukkit.getPlayer(args[0]).kickPlayer(ChatColor.translateAlternateColorCodes('&', kickMessage));
 	                }
-		        } else if(!exists.next()) {
-		        	String sql = "INSERT INTO tempbans(username, uuid, endOfBan, reason) VALUES ('" + args[0] + "', '" + uuid + "', " + timeStamp + ", '" + reason + "')";
-		        	MySQLHandler.returnStatement().executeUpdate(sql);
-		        	if(Bukkit.getPlayer(args[0]) != null) {
-		        		Bukkit.getPlayer(args[0]).kickPlayer(ChatColor.RED + "You were banned by a staff member for: " + DateUtil.formatDateDiff(timeStamp) + " for:\n\"" + reason.trim() + "\"");
-	                }
+		        	Utils.broadcastToStaff("§c" + sender.getName() + "§7 temporarily banned §c" + args[0] + " §7for §c" + this.format(args[1]) + " §7for §c" + reason.trim() + "§c.");
 		        }
 	        } catch(SQLException e) {
 	        	e.printStackTrace();

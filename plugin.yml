@@ -1,5 +1,6 @@
-name: IntristicCORE
 main: com.intristicmc.core.IntristicCORE
+name: IntristicCORE
+description: The CORE plugin for IntristicMC.
 author: Axanite, IntristicMC
 version: 1.0
 
@@ -24,12 +25,16 @@ commands:
     description: Returns & Shows the ping of a player.
   reply:
     description: Replies to last message sent to player.
+    aliases:
+    - r
   report:
     description: Notifies all staff in regards to a player breaking the rules.
   seen:
     description: Shows the time that a player was last seen on the server.
   staff:
     description: Allows for communication between staff privately.
+    aliases:
+    - s
   tempban:
     description: Removes a player from the server temporarily.
   tempmute:
@@ -38,3 +43,7 @@ commands:
     description: Pardons the ban on a user.
   unmute:
     description: Pardons the mute on a user.
+  history:
+    description: Shows the punishment history of the specified player.
+  clearchat:
+    description: Clears the chat for all players or the specified player.

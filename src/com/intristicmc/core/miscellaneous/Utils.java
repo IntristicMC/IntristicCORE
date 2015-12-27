@@ -17,13 +17,11 @@ public class Utils {
         return s;
     }
 	
-	public static void sendNoPermissionMessage(CommandSender sender, Player p, String node) {
+	public static void sendNoPermissionMessage(CommandSender sender, String node) {
         String s = getPrefix() + " &cYou're lacking the permission node: " + node;
         s = ChatColor.translateAlternateColorCodes('&', s);
         if(sender != null) {
         	sender.sendMessage(s);
-        } else if(p != null) {
-        	p.sendMessage(s);
         }
     }
 	
@@ -31,7 +29,7 @@ public class Utils {
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			if(p.hasPermission("intristicmc.core.viewstaffbroadcast")) {
 				m = ChatColor.translateAlternateColorCodes('&', m);
-				MessageManager.sendPlayerMessage(p, m);
+				MessageManager.sendPlayerMessage(true, p, m);
 			}
 		}
 	}

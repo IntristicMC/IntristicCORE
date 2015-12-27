@@ -24,8 +24,7 @@ public class EVENTPlayerLogon implements Listener {
 		String tempBanSql = "SELECT * FROM tempbans WHERE uuid = '" + p.getUniqueId() + "'";
 		try {
 			ResultSet permBanSet = MySQLHandler.returnStatement().executeQuery(permBanSql);
-			
-			if(permBanSet.next()) {
+			while(permBanSet.next()) {
 				String reason = permBanSet.getString("reason");
 				int is_pardoned = permBanSet.getInt("is_pardoned");
 				if(is_pardoned == 1) {
@@ -33,13 +32,18 @@ public class EVENTPlayerLogon implements Listener {
 					permBanSet.close();
 					return;
 				} else {
-					e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You were banned for:\n\"" + reason + "\"");
+					String kickMessage = (
+							"&7You are &4banned &7from IntristicMC. \n" +
+							"&7Ban Expiry: &cnever&7. \n" +
+							"&7Reason: &c" + reason
+							);
+					e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.translateAlternateColorCodes('&', kickMessage));
 					permBanSet.close();
 					return;
 				}
 			}
 			ResultSet tempBanSet = MySQLHandler.returnStatement().executeQuery(tempBanSql);
-			if(tempBanSet.next()) {
+			while(tempBanSet.next()) {
 				String reason = tempBanSet.getString("reason");
 				long endOfBanMillis = tempBanSet.getLong("endOfBan");
 				String endOfBan = DateUtil.formatDateDiff(endOfBanMillis);
@@ -54,7 +58,12 @@ public class EVENTPlayerLogon implements Listener {
 						tempBanSet.close();
 						return;
 					} else if(System.currentTimeMillis() < endOfBanMillis) {
-						e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You were banned for:\n\"" + reason + "\". \nYour ban will be lifted on: " + endOfBan);
+						String kickMessage = (
+								"&7You are &4banned &7from IntristicMC. \n" +
+								"&7Your ban will expire in &c" + endOfBan + "&7." +
+								"&7Reason: " + reason
+								);
+						e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.translateAlternateColorCodes('&', kickMessage));
 						tempBanSet.close();
 						return;
 					}

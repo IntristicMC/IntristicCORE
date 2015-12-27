@@ -2,9 +2,11 @@ package com.intristicmc.core.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import com.intristicmc.core.miscellaneous.MessageManager;
 import com.intristicmc.core.miscellaneous.MySQLHandler;
+import com.intristicmc.core.miscellaneous.UUIDFetcher;
 import com.intristicmc.core.miscellaneous.Utils;
 
 public class CMDMute implements CommandExecutor {
@@ -19,13 +22,13 @@ public class CMDMute implements CommandExecutor {
 		if(cmd.getName().equalsIgnoreCase("mute")) {
 			// Check if the player has the permission, if they don't, tell them they don't
 			if(!sender.hasPermission("intristicmc.core.mute")) {
-				Utils.sendNoPermissionMessage(sender, null, "intristicmc.core.mute");
+				Utils.sendNoPermissionMessage(sender, "intristicmc.core.mute");
 			}
 			
 			// Check the arguments and get reason
 			String reason = "";
 			if(args.length == 0) {
-				MessageManager.sendSenderMessage(sender, "&cUsage: /" + label + " <player> [reason]");
+				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
 				return true;
 			} else if(args.length == 1) {
 				reason = "You have been muted by a staff member!";
@@ -43,28 +46,48 @@ public class CMDMute implements CommandExecutor {
 			
 			
 			// Get the player
-			Player target = Bukkit.getPlayer(args[0]);
-			if(target == null) {
-				MessageManager.sendSenderMessage(sender, "&c" + args[0] + " is not online or has never played on this server!");
-				return true;
+			Player target = null;
+			OfflinePlayer offlineTarget = null;
+			UUID uuid = null;
+			try {
+				if(UUIDFetcher.getUUIDOf(args[0]) == null) {
+					MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " could not be identified!");
+					return true;
+				} else {
+					uuid = UUIDFetcher.getUUIDOf(args[0]);
+					if(Bukkit.getPlayer(uuid) == null) {
+						offlineTarget = Bukkit.getOfflinePlayer(uuid);
+					} else {
+						target = Bukkit.getPlayer(uuid);
+					}
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
 			
 			try {
-				ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM muted_players WHERE username = '" + target.getName() + "'");
-				if(rs.next() && rs.getInt("is_pardoned") == 0) {
-					MessageManager.sendSenderMessage(sender, "&c" + target.getName() + " is already muted!");
-					return true;
-				} else if(rs.next() && rs.getInt("is_pardoned") == 1) {
-					String sql = "INSERT INTO muted_players (`username`, `uuid`, `reason`) VALUES ('" + target.getName() + "', '" + target.getUniqueId() + "', '" + reason + "')";
+				boolean alreadyBanned = false;
+				if(target != null) {
+					ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM muted_players WHERE uuid = '" + target.getUniqueId() + "'");
+					while(rs.next()) {
+						if(rs.getInt("is_pardoned") == 0) {
+							alreadyBanned = true;
+						}
+					}
+				} else if(offlineTarget != null) {
+					ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM muted_players WHERE uuid = '" + offlineTarget.getUniqueId() + "'");
+					alreadyBanned = false;
+					while(rs.next()) {
+						if(rs.getInt("is_pardoned") == 0) {
+							alreadyBanned = true;
+						}
+					}
+				}
+				if(!alreadyBanned) {
+					String sql = "INSERT INTO muted_players (`dateOfMute`, `username`, `uuid`, `punisher`, `reason`) VALUES ('" + System.currentTimeMillis() + "', '" + target.getName() + "', '" + target.getUniqueId() + "', '" + sender.getName() + "', '" + reason + "')";
 					MySQLHandler.returnStatement().executeUpdate(sql);
 					Utils.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
-					MessageManager.sendPlayerMessage(target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
-					return true;
-				} else if(!rs.next()) {
-					String sql = "INSERT INTO muted_players (`username`, `uuid`, `reason`) VALUES ('" + target.getName() + "', '" + target.getUniqueId() + "', '" + reason + "')";
-					MySQLHandler.returnStatement().executeUpdate(sql);
-					Utils.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
-					MessageManager.sendPlayerMessage(target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
+					MessageManager.sendPlayerMessage(true, target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
 					return true;
 				}
 			} catch(SQLException e) {

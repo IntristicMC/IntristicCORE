@@ -7,8 +7,8 @@ import java.sql.Statement;
 
 public class MySQLHandler {
 	 static final String DBNAME = "jdbc:mysql://185.46.120.194:3306/zirconcf_intristic";
-	 static final String DBUSER = "zirconcf_mcserv";
-	 static final String DBPASS = "MvQr6VGtchVuM8J9";
+	 static final String DBUSER = "zirconcf_intrist";
+	 static final String DBPASS = "mFH]^QXziuCR(;OZ";
 	 static Connection conn;
 	 static Statement s;
 	 
@@ -20,6 +20,14 @@ public class MySQLHandler {
 	  } catch(Exception e) {
 		  e.printStackTrace();
 	  }
+	 }
+	 
+	 public static void createNewStatement() {
+		 try {
+			s = conn.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	 }
 	 
 	 public static void closeConnection() {

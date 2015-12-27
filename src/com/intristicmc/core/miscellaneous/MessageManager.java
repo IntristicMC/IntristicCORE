@@ -7,14 +7,22 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.ChatColor;
 
 public class MessageManager {
-	public static void sendPlayerMessage(Player p, String m) {
+	public static void sendPlayerMessage(boolean prefix, Player p, String m) {
 		m = ChatColor.translateAlternateColorCodes('&', m);
-		p.sendMessage(Utils.getPrefix() + " " + m);
+		if(prefix) {
+			p.sendMessage(Utils.getPrefix() + " " + m);
+		} else {
+			p.sendMessage(m);
+		}
 	}
 	
-	public static void sendSenderMessage(CommandSender sender, String m) {
+	public static void sendSenderMessage(boolean prefix, CommandSender sender, String m) {
 		m = ChatColor.translateAlternateColorCodes('&', m);
-		sender.sendMessage(Utils.getPrefix() + " " + m);
+		if(prefix) {
+			sender.sendMessage(Utils.getPrefix() + " " + m);
+		} else {
+			sender.sendMessage(m);
+		}
 	}
 	
 	public static void sendServerBroadcast(String m) {
