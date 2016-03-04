@@ -46,6 +46,7 @@ public class NameFetcher {
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
 			connection.setRequestMethod("GET");
+			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			connection.setRequestProperty("charset", "UTF-8");
 			connection.setRequestProperty("Content-Length", String.valueOf(dataLength));

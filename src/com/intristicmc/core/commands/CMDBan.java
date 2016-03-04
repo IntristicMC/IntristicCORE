@@ -18,6 +18,7 @@ import com.intristicmc.core.miscellaneous.Utils;
 import net.md_5.bungee.api.ChatColor;
 
 public class CMDBan implements CommandExecutor {
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("ban")) {
 			if(!sender.hasPermission("intristicmc.core.ban")) {
@@ -28,7 +29,7 @@ public class CMDBan implements CommandExecutor {
 			// Check all the arguments and get/set the reason.
 			String reason = "";
 			if(args.length == 0) {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
 				return true;
 			} else if(args.length == 1) {
 				reason = "You have been banned!";
@@ -77,7 +78,7 @@ public class CMDBan implements CommandExecutor {
 					}
 				}
 				if(alreadyBanned) {
-					MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " is already banned!");
+					MessageManager.sendMessage(true, sender, "&c" + args[0] + " is already banned!");
 					return true;
 				} else if(!alreadyBanned) {
 					String sql = "INSERT INTO bans(dateOfBan, username, uuid, punisher, reason) VALUES (" + System.currentTimeMillis() + ", '" + name + "', '" + uuid + "', '" + sender.getName() + "', '" + reason + "')";
@@ -90,7 +91,7 @@ public class CMDBan implements CommandExecutor {
 								);
 						Bukkit.getPlayer(name).kickPlayer(ChatColor.translateAlternateColorCodes('&', kickMessage));
 					}
-					Utils.broadcastToStaff("&7" + sender.getName() + " has &cbanned &7" + name + " for: &c" + reason);
+					MessageManager.broadcastToStaff("&7" + sender.getName() + " has &cbanned &7" + name + " for: &c" + reason);
 					return true;
 				}
 			} catch(SQLException e) {

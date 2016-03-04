@@ -28,7 +28,7 @@ public class CMDMute implements CommandExecutor {
 			// Check the arguments and get reason
 			String reason = "";
 			if(args.length == 0) {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
 				return true;
 			} else if(args.length == 1) {
 				reason = "You have been muted by a staff member!";
@@ -51,7 +51,7 @@ public class CMDMute implements CommandExecutor {
 			UUID uuid = null;
 			try {
 				if(UUIDFetcher.getUUIDOf(args[0]) == null) {
-					MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " could not be identified!");
+					MessageManager.sendMessage(true, sender, "&c" + args[0] + " could not be identified!");
 					return true;
 				} else {
 					uuid = UUIDFetcher.getUUIDOf(args[0]);
@@ -86,8 +86,8 @@ public class CMDMute implements CommandExecutor {
 				if(!alreadyBanned) {
 					String sql = "INSERT INTO muted_players (`dateOfMute`, `username`, `uuid`, `punisher`, `reason`) VALUES ('" + System.currentTimeMillis() + "', '" + target.getName() + "', '" + target.getUniqueId() + "', '" + sender.getName() + "', '" + reason + "')";
 					MySQLHandler.returnStatement().executeUpdate(sql);
-					Utils.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
-					MessageManager.sendPlayerMessage(true, target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
+					MessageManager.broadcastToStaff(sender.getName() + " muted " + target.getName() + " for \"" + reason + "\"!");
+					MessageManager.sendMessage(true, target, sender.getName() + " muted &4you &cfor \"" + reason + "\"!");
 					return true;
 				}
 			} catch(SQLException e) {

@@ -16,6 +16,7 @@ import com.intristicmc.core.miscellaneous.Utils;
 import net.md_5.bungee.api.ChatColor;
 
 public class CMDKick implements CommandExecutor {
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("kick")) {
 			// Check if the player/sender has the correct permission.
@@ -27,7 +28,7 @@ public class CMDKick implements CommandExecutor {
 			// Get and set the reason.
 			String reason = "";
 			if(args.length == 0) {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command. &cUsage: /" + label + " <player> [reason]");
 				return true;
 			} else if(args.length == 1) {
 				reason = "You were kicked by a staff member!";
@@ -45,7 +46,7 @@ public class CMDKick implements CommandExecutor {
 			
 			Player target = Bukkit.getPlayer(args[0]);
 			if(target == null) {
-				MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " is not online!");
+				MessageManager.sendMessage(true, sender, "&c" + args[0] + " is not online!");
 				return true;
 			}
 			String kickMessage = (
@@ -53,7 +54,7 @@ public class CMDKick implements CommandExecutor {
 					"&7Reason: &c" + reason
 					);
 			target.kickPlayer(ChatColor.translateAlternateColorCodes('&', kickMessage));
-			Utils.broadcastToStaff("&c" + target.getName() + " 78was kicked by &c" + sender.getName() + " &8for \"&c" + reason + "&8\"!");
+			MessageManager.broadcastToStaff("&c" + target.getName() + " &8was kicked by &c" + sender.getName() + " &8for \"&c" + reason + "&8\"!");
 			try {
 				MySQLHandler.returnStatement().executeUpdate("INSERT INTO kicks(dateOfKick, username, uuid, punisher, reason) VALUES ('" + System.currentTimeMillis() + "', '" + target.getName() + "', '" + target.getUniqueId() + "', '" + sender.getName() + "', '" + reason + "')");
 			} catch(SQLException e) {

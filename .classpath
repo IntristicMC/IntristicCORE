@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="P:/InstristicMC/Resources/spigot-1.8.3.jar"/>
-	<classpathentry kind="lib" path="P:/InstristicMC/Resources/craftbukkit-1.8.3.jar"/>
 	<classpathentry kind="lib" path="P:/InstristicMC/Resources/PermissionsEx-1.23.3.jar"/>
+	<classpathentry kind="lib" path="P:/InstristicMC/Resources/craftbukkit_server.jar"/>
+	<classpathentry kind="lib" path="P:/InstristicMC/Resources/spigot_server.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

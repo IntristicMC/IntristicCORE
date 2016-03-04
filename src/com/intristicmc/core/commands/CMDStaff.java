@@ -20,7 +20,7 @@ public class CMDStaff implements CommandExecutor {
 			}
 			
 			if(args.length == 0) {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <msg>");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <msg>");
 				return true;
 			}
 			String prefix = "&8[&cSTAFF&8]";
@@ -38,7 +38,7 @@ public class CMDStaff implements CommandExecutor {
 			
 			for(Player p : Bukkit.getOnlinePlayers()) {
 				if(p.hasPermission("intristicmc.core.staffchat")) {
-					MessageManager.sendPlayerMessage(false, p, prefix + " &r" + senderPrefix + sender.getName() + "&r: " + message);
+					MessageManager.sendMessage(false, p, prefix + " &r" + senderPrefix + sender.getName() + "&r: " + message);
 				}
 			}
 		}

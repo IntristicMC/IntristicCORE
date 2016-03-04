@@ -17,6 +17,8 @@ commands:
     description: Toggles maintenance mode on/off.
   msg:
     description: Allows for messaging between users.
+    aliases:
+    - message
   mute:
     description: Removes a player's ability to type in chat permanently.
   nick:
@@ -47,3 +49,7 @@ commands:
     description: Shows the punishment history of the specified player.
   clearchat:
     description: Clears the chat for all players or the specified player.
+  chatcolour:
+    description: Changes your chat colour.
+    aliases:
+    - chatcolor

@@ -23,7 +23,7 @@ public class CMDUnban implements CommandExecutor {
 			}
 			
 			if(args.length == 0 || args.length > 1) {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <player>");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <player>");
 				return true;
 			}
 			
@@ -41,7 +41,7 @@ public class CMDUnban implements CommandExecutor {
 				while(permBanSet.next()) {
 					if(permBanSet.getInt("is_pardoned") == 0) {
 						MySQLHandler.returnStatement().executeUpdate("UPDATE `bans` SET `is_pardoned` = '1' WHERE `id` = '" + permBanSet.getInt("id") + "'");
-						Utils.broadcastToStaff("&c" + sender.getName() + " &7unbanned &c" + name + "!");
+						MessageManager.broadcastToStaff("&c" + sender.getName() + " &7unbanned &c" + name + "!");
 						return true;
 					}
 				}
@@ -49,11 +49,11 @@ public class CMDUnban implements CommandExecutor {
 				while(tempBanSet.next()) {
 					if(tempBanSet.getInt("is_pardoned") == 0) {
 						MySQLHandler.returnStatement().executeUpdate("UPDATE `tempbans` SET `is_pardoned` = '1' WHERE `id` = '" + tempBanSet.getInt("id") + "'");
-						Utils.broadcastToStaff("&c" + sender.getName() + " &7unbanned &c" + name + "!");
+						MessageManager.broadcastToStaff("&c" + sender.getName() + " &7unbanned &c" + name + "!");
 						return true;
 					}
 				}
-				MessageManager.sendSenderMessage(true, sender, "&c" + name + " isn't banned!");
+				MessageManager.sendMessage(true, sender, "&c" + name + " isn't banned!");
 				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();

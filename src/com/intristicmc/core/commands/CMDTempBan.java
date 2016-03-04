@@ -22,21 +22,22 @@ import com.intristicmc.core.miscellaneous.temputils.StringUtil;
  
 public class CMDTempBan implements CommandExecutor {
 
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    @SuppressWarnings("deprecation")
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
     	if(cmd.getName().equalsIgnoreCase("tempban")) {
     		if(!sender.hasPermission("intristicmc.core.tempban")) {
     			Utils.sendNoPermissionMessage(sender, null);
     		}
     		
     		if(args.length < 2) {
-    			MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <player> <#y|month|d|h|minute|s> [reason]");
+    			MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " <player> <#y|month|d|h|minute|s> [reason]");
     			return true;
     		}
     		
 	        long timeStamp = 0L;
 	        try {
 	            if (!StringUtil.matches(args[1], "\\d{1,}(d|days|day|m|minute|minutes|min|hour|hours|h|month|months|year|years|y|s|seconds|second)")) {
-	                MessageManager.sendSenderMessage(true, sender, "§cInvalid time period.");
+	                MessageManager.sendMessage(true, sender, "§cInvalid time period.");
 	                return true;
 	            }
 	            timeStamp = DateUtil.parseDateDiff(args[1], true);
@@ -76,7 +77,7 @@ public class CMDTempBan implements CommandExecutor {
 		        while(exists.next()) {
 		        	if(exists.getInt("is_pardoned") == 0) {
 		        		alreadyBanned = true;
-		        		MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " is already banned!");
+		        		MessageManager.sendMessage(true, sender, "&c" + args[0] + " is already banned!");
 		        	}
 		        }
 		        if(!alreadyBanned) {
@@ -90,7 +91,7 @@ public class CMDTempBan implements CommandExecutor {
 		        				);
 		        		Bukkit.getPlayer(args[0]).kickPlayer(ChatColor.translateAlternateColorCodes('&', kickMessage));
 	                }
-		        	Utils.broadcastToStaff("§c" + sender.getName() + "§7 temporarily banned §c" + args[0] + " §7for §c" + this.format(args[1]) + " §7for §c" + reason.trim() + "§c.");
+		        	MessageManager.broadcastToStaff("§c" + sender.getName() + "§7 temporarily banned §c" + args[0] + " §7for §c" + this.format(args[1]) + " §7for §c" + reason.trim() + "§c.");
 		        }
 	        } catch(SQLException e) {
 	        	e.printStackTrace();

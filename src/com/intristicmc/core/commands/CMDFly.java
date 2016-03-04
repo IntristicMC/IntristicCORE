@@ -12,6 +12,7 @@ import com.intristicmc.core.miscellaneous.Utils;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 public class CMDFly implements CommandExecutor {
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("fly")) {
 			if(!sender.hasPermission("intristicmc.core.fly")) {
@@ -24,15 +25,15 @@ public class CMDFly implements CommandExecutor {
 					Player p = (Player) sender;
 					if(p.getAllowFlight()) {
 						p.setAllowFlight(false);
-						MessageManager.sendPlayerMessage(true, p, "&7You &cdisabled &7fly mode!");
+						MessageManager.sendMessage(true, p, "&7You &cdisabled &7fly mode!");
 						return true;
 					} else {
 						p.setAllowFlight(true);
-						MessageManager.sendPlayerMessage(true, p, "&7You &aenabled &7fly mode!");
+						MessageManager.sendMessage(true, p, "&7You &aenabled &7fly mode!");
 						return true;
 					}
 				} else {
-					MessageManager.sendSenderMessage(true, sender, "&cYou must specify a player to toggle fly mode for!");
+					MessageManager.sendMessage(true, sender, "&cYou must specify a player to toggle fly mode for!");
 					return true;
 				}
 			} else if(args.length == 1) {
@@ -42,26 +43,26 @@ public class CMDFly implements CommandExecutor {
 				}
 				Player target = Bukkit.getPlayer(args[0]);
 				if(target == null) {
-					MessageManager.sendSenderMessage(true, sender, "&c" + args[0] + " isn't online!");
+					MessageManager.sendMessage(true, sender, "&c" + args[0] + " isn't online!");
 					return true;
 				}
 				if(target.getAllowFlight()) {
 					target.setAllowFlight(false);
 					String targetPrefix = PermissionsEx.getUser(target).getPrefix();
 					String senderPrefix = PermissionsEx.getUser(sender.getName()).getPrefix();
-					MessageManager.sendSenderMessage(true, sender, "&7You &cdisabled &7fly mode for " + targetPrefix + target.getName() + "&7!");
-					MessageManager.sendPlayerMessage(true, target, senderPrefix + sender.getName() + " &cdisabled &7fly mode for " + targetPrefix + " you");
+					MessageManager.sendMessage(true, sender, "&7You &cdisabled &7fly mode for " + targetPrefix + target.getName() + "&7!");
+					MessageManager.sendMessage(true, target, senderPrefix + sender.getName() + " &cdisabled &7fly mode for " + targetPrefix + " you");
 					return true;
 				} else {
 					target.setAllowFlight(true);
 					String targetPrefix = PermissionsEx.getUser(target).getPrefix();
 					String senderPrefix = PermissionsEx.getUser(sender.getName()).getPrefix();
-					MessageManager.sendSenderMessage(true, sender, "&7You &aenabled &7fly mode for " + targetPrefix + target.getName() + "&7!");
-					MessageManager.sendPlayerMessage(true, target, senderPrefix + sender.getName() + " &r&7changed your nickname to " + args[0]);
+					MessageManager.sendMessage(true, sender, "&7You &aenabled &7fly mode for " + targetPrefix + target.getName() + "&7!");
+					MessageManager.sendMessage(true, target, senderPrefix + sender.getName() + " &aenabled &7fly mode for " + targetPrefix + " you");
 					return true;
 				}
 			} else {
-				MessageManager.sendSenderMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " [player]");
+				MessageManager.sendMessage(true, sender, "&7Incorrect usage for this command! &cUsage: /" + label + " [player]");
 				return true;
 			}
 		}

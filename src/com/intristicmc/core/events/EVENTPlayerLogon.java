@@ -3,6 +3,7 @@ package com.intristicmc.core.events;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,45 @@ public class EVENTPlayerLogon implements Listener {
 		Player p = e.getPlayer();
 		
 		MySQLHandler.connect();
+		
+		try {
+			ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM login WHERE uuid = '" + p.getUniqueId() + "'");
+			if(rs.next()) {
+				MySQLHandler.returnStatement().executeUpdate("UPDATE login SET username = '" + p.getName() + "', lastlogin = '" + System.currentTimeMillis() + "' WHERE uuid = '" + p.getUniqueId() + "'");
+			} else {
+				String insertSql = "INSERT INTO `login` (`username`, `uuid`, `lastlogin`) VALUES ('" + p.getName() + "', '" + p.getUniqueId() + "', '" + System.currentTimeMillis() + "');";
+				MySQLHandler.returnStatement().executeUpdate(insertSql);
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
+			ResultSet rs = MySQLHandler.returnStatement().executeQuery("SELECT * FROM main");
+			if(rs.next()) {
+				if(rs.getString("maintenance").equalsIgnoreCase("on") && !e.getPlayer().hasPermission("intristicmc.core.maintenance.bypass")) {
+					String message = (
+							"&4Intristic&cMC &7is currently in &4maintenance &7mode! \n" +
+							"&7Please try again later."
+							);
+					e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.translateAlternateColorCodes('&', message));
+					return;
+				}
+			}
+		} catch(SQLException ex) {
+			ex.printStackTrace();
+		}
+		
+		if(Bukkit.getServer().hasWhitelist()) {
+			String message = (
+					"&7You are not whitelisted on &4Intristic&cMC&7! \n" +
+					"&7Please try again later."
+					);
+			if(!e.getPlayer().isWhitelisted()) {
+				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.translateAlternateColorCodes('&', message));
+				return;
+			}
+		}
 		
 		String permBanSql = "SELECT * FROM bans WHERE uuid = '" + p.getUniqueId() + "'";
 		String tempBanSql = "SELECT * FROM tempbans WHERE uuid = '" + p.getUniqueId() + "'";

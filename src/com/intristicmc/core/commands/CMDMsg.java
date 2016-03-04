@@ -15,10 +15,11 @@ import com.intristicmc.core.miscellaneous.Utils;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 public class CMDMsg implements CommandExecutor {
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("msg")) {
 			if(!(sender instanceof Player)) {
-				MessageManager.sendSenderMessage(true, sender, "&cYou must be an in-game player to run this command!");
+				MessageManager.sendMessage(true, sender, "&cYou must be an in-game player to run this command!");
 				return true;
 			}
 			Player p = (Player) sender;
@@ -31,15 +32,15 @@ public class CMDMsg implements CommandExecutor {
 			
 			String message = null;
 			if(args.length == 0 || args.length == 1) {
-				MessageManager.sendPlayerMessage(true, p, "&7Incorrect usage for this command! &cUsage: /" + label + " <player> <message>");
+				MessageManager.sendMessage(true, p, "&7Incorrect usage for this command! &cUsage: /" + label + " <player> <message>");
 				return true;
 			} else if(args.length >= 2) {
 				StringBuilder messageSB = new StringBuilder();
 				for(int i = 1; i < args.length; i++) {
-					if(i == args.length - 1) {
-						messageSB.append(args[i]).append(" ");
-					} else {
+					if(i == args.length) {
 						messageSB.append(args[i]);
+					} else {
+						messageSB.append(args[i]).append(" ");
 					}
 				}
 				message = messageSB.toString();
@@ -49,7 +50,7 @@ public class CMDMsg implements CommandExecutor {
 			// Key is sender | Value is receiver.
 			
 			if(Bukkit.getPlayer(args[0]) == null) {
-				MessageManager.sendPlayerMessage(true, p, "&c" + args[0] + " is not online!");
+				MessageManager.sendMessage(true, p, "&c" + args[0] + " is not online!");
 				return true;
 			}
 			
@@ -58,8 +59,8 @@ public class CMDMsg implements CommandExecutor {
 			String targetPrefix = PermissionsEx.getUser(target).getPrefix();
 			String senderPrefix = PermissionsEx.getUser(p).getPrefix();
 			
-			MessageManager.sendPlayerMessage(false, p, senderPrefix + "You &8&l-> " + targetPrefix + target.getName() + "&r: " + message);
-			MessageManager.sendPlayerMessage(false, target, senderPrefix + p.getName() + " &8&l-> &r" + targetPrefix + "You&r: " + message);
+			MessageManager.sendMessage(false, p, senderPrefix + "You &8&l-> &r" + targetPrefix + target.getName() + "&r&8:&r " + message);
+			MessageManager.sendMessage(false, target, senderPrefix + p.getName() + " &8&l-> &r" + targetPrefix + "You&r&8:&r " + message);
 			
 			replyMap.put(p.getName(), target.getName());
 			replyMap.put(target.getName(), p.getName());

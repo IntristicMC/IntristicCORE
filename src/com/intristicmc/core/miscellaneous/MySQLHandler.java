@@ -1,8 +1,8 @@
 package com.intristicmc.core.miscellaneous;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Connection;
 import java.sql.Statement;
 
 public class MySQLHandler {
@@ -22,17 +22,11 @@ public class MySQLHandler {
 	  }
 	 }
 	 
-	 public static void createNewStatement() {
-		 try {
-			s = conn.createStatement();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	 }
-	 
 	 public static void closeConnection() {
 		 try {
-			conn.close();
+			if(conn != null) {
+				conn.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -40,13 +34,16 @@ public class MySQLHandler {
 	 
 	 public static void closeStatement() {
 		 try {
-			 s.close();
+			 if(returnStatement() != null) {
+				 returnStatement().close();
+			 }
 		 } catch(SQLException e) {
 			 e.printStackTrace();
 		 }
 	 }
 
-	public static Statement returnStatement() {
+	public static Statement returnStatement() throws SQLException {
+		connect();
 		return s;
 	}
 }
